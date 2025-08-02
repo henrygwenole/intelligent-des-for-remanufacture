@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  chromadb:
+    image: chromadb/chroma:0.5.23
+    container_name: asmg-chromadb
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+    networks:
+      - asmg-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: ../docker/Dockerfile.api
+    container_name: asmg-api
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-pro}
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - PLANT_SIM_BRIDGE_URL=http://host.docker.internal:8002
+    volumes:
+      - ./api:/app
+    depends_on:
+      - chromadb
+    networks:
+      - asmg-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: asmg-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - asmg-network
+
+volumes:
+  chroma_data:
+    driver: local
+
+networks:
+  asmg-network:
+    driver: bridge

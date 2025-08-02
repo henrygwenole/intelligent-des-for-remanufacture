@@ -1,0 +1,15 @@
+# FastAPI for Bridge Server
+fastapi==0.115.4
+uvicorn[standard]==0.32.1
+pydantic==2.10.2
+python-dotenv==1.0.1
+
+# Windows COM Interface (Python 3.13 compatible)
+pywin32==308
+comtypes==1.4.8
+
+# Structured Logging
+structlog==24.4.0
+
+# Async Support
+asyncio-mqtt==0.16.2

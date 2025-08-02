@@ -1,0 +1,15 @@
+# Gemini 2.5 Pro Configuration
+GEMINI_API_KEY=AIzaSyBW6SMuYHBj_iXvdrxFrAbNIN8JuMj3ZBQ
+GEMINI_MODEL=gemini-2.5-pro
+
+# Service Configuration
+CHROMA_HOST=chromadb
+CHROMA_PORT=8000
+PLANT_SIM_BRIDGE_URL=http://host.docker.internal:8002
+DEBUG=true
+
+# Optional: Advanced Settings
+GEMINI_TEMPERATURE=0.2
+GEMINI_TOP_P=0.9
+GEMINI_TOP_K=40
+MAX_OUTPUT_TOKENS=8192

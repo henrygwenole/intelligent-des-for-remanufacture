@@ -1,0 +1,128 @@
+{
+  "basic_objects": {
+    "source": {
+      "description": "Creates parts in the simulation",
+      "template": "var mySource:object\nmySource := .MaterialFlow.Source.derive(.Models.Model, \"{name}\", 1)\nmySource.Interval := {interval}\nmySource.Number := {amount}",
+      "parameters": {
+        "name": "string",
+        "interval": "number (seconds)",
+        "amount": "number (parts per creation)"
+      },
+      "examples": [
+        "mySource.Interval := 10  -- Create part every 10 seconds",
+        "mySource.Number := 1     -- Create 1 part at a time"
+      ]
+    },
+    "station": {
+      "description": "Processing station for manufacturing operations", 
+      "template": "var myStation:object\nmyStation := .MaterialFlow.Station.derive(.Models.Model, \"{name}\", 1)\nmyStation.ProcTime := {processing_time}",
+      "parameters": {
+        "name": "string",
+        "processing_time": "number (seconds)"
+      },
+      "examples": [
+        "myStation.ProcTime := 15      -- Process for 15 seconds",
+        "myStation.Capacity := 1       -- Handle 1 part at a time",
+        "myStation.SetupTime := 5      -- 5 second setup time"
+      ]
+    },
+    "buffer": {
+      "description": "Storage between processing stations",
+      "template": "var myBuffer:object\nmyBuffer := .MaterialFlow.Buffer.derive(.Models.Model, \"{name}\", 1)\nmyBuffer.Capacity := {capacity}",
+      "parameters": {
+        "name": "string", 
+        "capacity": "number (parts)"
+      },
+      "examples": [
+        "myBuffer.Capacity := 100     -- Store up to 100 parts",
+        "myBuffer.Strategy := FIFO    -- First In, First Out"
+      ]
+    },
+    "drain": {
+      "description": "Removes parts from the simulation",
+      "template": "var myDrain:object\nmyDrain := .MaterialFlow.Drain.derive(.Models.Model, \"{name}\", 1)",
+      "parameters": {
+        "name": "string"
+      },
+      "examples": [
+        "-- Drain automatically removes all incoming parts"
+      ]
+    },
+    "conveyor": {
+      "description": "Transports parts with travel time",
+      "template": "var myConveyor:object\nmyConveyor := .MaterialFlow.Conveyor.derive(.Models.Model, \"{name}\", 1)\nmyConveyor.Length := {length}",
+      "parameters": {
+        "name": "string",
+        "length": "number (meters)"
+      },
+      "examples": [
+        "myConveyor.Length := 5       -- 5 meter conveyor",
+        "myConveyor.Speed := 1        -- 1 meter per second"
+      ]
+    }
+  },
+  "connections": {
+    "connector": {
+      "description": "Connects objects in material flow",
+      "template": ".MaterialFlow.Connector.connect({from_object}, {to_object})",
+      "examples": [
+        ".MaterialFlow.Connector.connect(.Models.Model.Source1, .Models.Model.Station1)",
+        ".MaterialFlow.Connector.connect(.Models.Model.Station1, .Models.Model.Buffer1)"
+      ]
+    }
+  },
+  "positioning": {
+    "3d_position": {
+      "description": "Position objects in 3D space",
+      "template": "{object_path}._3D.Position := [{x}, {y}, {z}]",
+      "examples": [
+        ".Models.Model.Source1._3D.Position := [10, 10, 0]",
+        ".Models.Model.Station1._3D.Position := [20, 10, 0]"
+      ]
+    }
+  },
+  "simulation_control": {
+    "start": {
+      "description": "Start the simulation",
+      "template": ".Models.Model.EventController.Start",
+      "examples": [".Models.Model.EventController.Start"]
+    },
+    "stop": {
+      "description": "Stop the simulation", 
+      "template": ".Models.Model.EventController.Stop",
+      "examples": [".Models.Model.EventController.Stop"]
+    },
+    "reset": {
+      "description": "Reset simulation statistics",
+      "template": ".Models.Model.EventController.Reset",
+      "examples": [".Models.Model.EventController.Reset"]
+    }
+  },
+  "statistics": {
+    "throughput": {
+      "description": "Get throughput statistics",
+      "template": "{object}.Statistics.Mu",
+      "examples": [
+        ".Models.Model.Source1.Statistics.Mu  -- Parts created",
+        ".Models.Model.Drain1.Statistics.Mu   -- Parts completed"
+      ]
+    },
+    "utilization": {
+      "description": "Get utilization statistics", 
+      "template": "{object}.Statistics.Utilization",
+      "examples": [
+        ".Models.Model.Station1.Statistics.Utilization"
+      ]
+    }
+  },
+  "common_patterns": {
+    "simple_line": {
+      "description": "Basic production line pattern",
+      "template": "-- Simple Production Line\n.Models.Model.Source1 := .MaterialFlow.Source.derive(.Models.Model, \"Source1\", 1)\n.Models.Model.Station1 := .MaterialFlow.Station.derive(.Models.Model, \"Station1\", 1)\n.Models.Model.Drain1 := .MaterialFlow.Drain.derive(.Models.Model, \"Drain1\", 1)\n\n-- Set parameters\n.Models.Model.Source1.Interval := 10\n.Models.Model.Station1.ProcTime := 8\n\n-- Connect objects\n.MaterialFlow.Connector.connect(.Models.Model.Source1, .Models.Model.Station1)\n.MaterialFlow.Connector.connect(.Models.Model.Station1, .Models.Model.Drain1)"
+    },
+    "buffered_line": {
+      "description": "Production line with intermediate buffers",
+      "template": "-- Buffered Production Line\n.Models.Model.Source1 := .MaterialFlow.Source.derive(.Models.Model, \"Source1\", 1)\n.Models.Model.Station1 := .MaterialFlow.Station.derive(.Models.Model, \"Station1\", 1)\n.Models.Model.Buffer1 := .MaterialFlow.Buffer.derive(.Models.Model, \"Buffer1\", 1)\n.Models.Model.Station2 := .MaterialFlow.Station.derive(.Models.Model, \"Station2\", 1)\n.Models.Model.Drain1 := .MaterialFlow.Drain.derive(.Models.Model, \"Drain1\", 1)\n\n-- Set parameters\n.Models.Model.Source1.Interval := 8\n.Models.Model.Station1.ProcTime := 10\n.Models.Model.Buffer1.Capacity := 50\n.Models.Model.Station2.ProcTime := 12\n\n-- Connect objects\n.MaterialFlow.Connector.connect(.Models.Model.Source1, .Models.Model.Station1)\n.MaterialFlow.Connector.connect(.Models.Model.Station1, .Models.Model.Buffer1)\n.MaterialFlow.Connector.connect(.Models.Model.Buffer1, .Models.Model.Station2)\n.MaterialFlow.Connector.connect(.Models.Model.Station2, .Models.Model.Drain1)"
+    }
+  }
+}
